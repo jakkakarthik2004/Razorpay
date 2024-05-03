@@ -32,7 +32,7 @@ const PaymentGatewayRazorpay = () => {
         console.log("order", order);
 
         var option = {
-            key:"",
+            key:"rzp_test_8KuaEG6YpYMWAp",
             amount,
             currency,
             name:"GDSC VNRVJIET",
