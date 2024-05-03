@@ -4,6 +4,8 @@ const cors = require("cors")
 const crypto = require("crypto")
 const nodemailer = require('nodemailer');
 const { from } = require("form-data");
+const bodyParser = require('body-parser');
+const QRCode = require('qrcode');
 
 require("dotenv").config()
 
@@ -11,12 +13,17 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended:false }));
 app.use(cors());
+app.use(bodyParser.json({ limit: '10mb', extended: true }))
+app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }))
+
 
 app.get("/", (req, res) => {
     res.send("Server running");
 })
 
 const sendEmail = async (email, orderId, paymentId) => {
+    const qrCode = await QRCode.toDataURL('paymentId:'+paymentId+' Name:Lakshita Email:'+email);
+    qrCodeImage=new Buffer.from(qrCode.split("base64,")[1], "base64")
     try {
         const transporter = nodemailer.createTransport({
             service: "gmail",
@@ -35,8 +42,10 @@ const sendEmail = async (email, orderId, paymentId) => {
             },
             to: `${email}`,
             subject: "Order Confirmation",
+            attachDataUrls:true,
             html: `
                 <h1>Order Confirmation</h1>
+                <img src="${qrCode}" alt="QR Code" />
                 <p>Order ID: ${orderId}</p>
                 <p>Payment ID: ${paymentId}</p>
                 <p>Thank you for your order!</p>
